@@ -1,15 +1,10 @@
 pipeline {
   agent any
-  environment {
-
-    ARTIFACT_BASE = "${CCI_CURRENT_TEAM}-docker.pkg.${CCI_CURRENT_DOMAIN}"
-    ARTIFACT_IMAGE="${ARTIFACT_BASE}/${PROJECT_NAME}/${DEPOT_NAME}/${DEPOT_NAME}"
-  }
   stages {
     stage('检出') {
       steps {
         checkout([$class: 'GitSCM', branches: [[name: env.GIT_BUILD_REF]],
-                            userRemoteConfigs: [[url: env.GIT_REPO_URL, credentialsId: env.CREDENTIALS_ID]]])
+        userRemoteConfigs: [[url: env.GIT_REPO_URL, credentialsId: env.CREDENTIALS_ID]]])
       }
     }
     stage('编译') {
@@ -18,13 +13,16 @@ pipeline {
       }
     }
     stage('单元测试') {
-      steps {
-        sh "./mvnw test"
-      }
       post {
         always {
-        	junit 'target/surefire-reports/*.xml'
+          junit 'target/surefire-reports/*.xml'
+
         }
+
+      }
+      steps {
+        sh './mvnw test'
+        codingHtmlReport(name: 'my-report', path: 'index.html')
       }
     }
     stage('打包镜像') {
@@ -41,7 +39,12 @@ pipeline {
             docker.image("${ARTIFACT_IMAGE}:latest").push()
           }
         }
+
       }
     }
+  }
+  environment {
+    ARTIFACT_BASE = "${CCI_CURRENT_TEAM}-docker.pkg.${CCI_CURRENT_DOMAIN}"
+    ARTIFACT_IMAGE = "${ARTIFACT_BASE}/${PROJECT_NAME}/${DEPOT_NAME}/${DEPOT_NAME}"
   }
 }
