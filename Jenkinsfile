@@ -12,22 +12,11 @@ pipeline {
         sh './mvnw package -Dmaven.test.skip=true'
       }
     }
-    stage('通用报告收集') {
-      post {
-        always {
-          codingHtmlReport(name: 'my-report', path: 'coverage', entryFile: 'index.html')
-
-        }
-
-      }
-      steps {
-        sh 'sh \'npm run coverage\''
-      }
-    }
     stage('Junit-单元测试') {
       post {
         always {
           junit 'target/surefire-reports/*.xml'
+          codingHtmlReport(name: 'my-report', path: 'target/surefire-reports/*.xml', entryFile: 'index.html')
 
         }
 
