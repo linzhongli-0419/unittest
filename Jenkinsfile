@@ -16,7 +16,7 @@ pipeline {
       post {
         always {
           junit 'target/surefire-reports/*.xml'
-          codingHtmlReport(name: 'my-report', path: 'yindex.html')
+          codingHtmlReport(name: 'my-report', path: 'index.html')
 
         }
 
