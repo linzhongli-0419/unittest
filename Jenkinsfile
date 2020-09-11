@@ -16,13 +16,13 @@ pipeline {
       post {
         always {
           junit 'target/surefire-reports/*.xml'
+          codingHtmlReport(name: 'my-report', path: 'index.html')
 
         }
 
       }
       steps {
         sh './mvnw test'
-        codingHtmlReport(name: 'my-report', path: 'index.html')
       }
     }
     stage('打包镜像') {
